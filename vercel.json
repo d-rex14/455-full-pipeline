@@ -2,7 +2,11 @@
   "version": 2,
   "builds": [
     { "src": "public/**", "use": "@vercel/static" },
-    { "src": "api/predict.py", "use": "@vercel/python" }
+    {
+      "src": "api/predict.py",
+      "use": "@vercel/python",
+      "config": { "includeFiles": "model.sav" }
+    }
   ],
   "routes": [
     { "src": "/api/predict", "dest": "/api/predict.py" },

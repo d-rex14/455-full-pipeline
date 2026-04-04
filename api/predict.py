@@ -8,7 +8,6 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 import pickle
-import datetime
 
 import numpy as np
 import pandas as pd
@@ -20,7 +19,17 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 FRAUD_THRESHOLD = float(os.environ.get("FRAUD_THRESHOLD", "0.428"))
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "model.sav")
+
+def _resolve_model_path():
+    """Pickle must ship inside the Python function bundle (see vercel.json includeFiles)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for p in (
+        os.path.join(here, "model.sav"),
+        os.path.normpath(os.path.join(here, "..", "model.sav")),
+    ):
+        if os.path.isfile(p):
+            return p
+    return os.path.normpath(os.path.join(here, "..", "model.sav"))
 
 # Categories kept during training (everything else was binned to "Other")
 KNOWN_IP_COUNTRIES = {"US"}
@@ -35,7 +44,13 @@ _supabase = None
 def _get_model():
     global _model
     if _model is None:
-        with open(MODEL_PATH, "rb") as f:
+        path = _resolve_model_path()
+        if not os.path.isfile(path):
+            raise FileNotFoundError(
+                "model.sav not found. Train with fraud_detection.ipynb (serialization cell), "
+                "place model.sav at the project root, commit it, and redeploy so Vercel can bundle it."
+            )
+        with open(path, "rb") as f:
             _model = pickle.load(f)
     return _model
 

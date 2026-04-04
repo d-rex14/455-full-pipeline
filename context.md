@@ -44,4 +44,5 @@ We will document and execute the following phases within the `fraud_detection.ip
 1.  **Serialization:** The final model is saved as `model.sav`.
 2.  **Backend Integration:** Connect to **Supabase** for data persistence and user management.
 3.  **Production:** Deploy a serverless function or API on **Vercel** to serve real-time fraud predictions.
-4.  **Frontend:** Static UI in `public/` is routed at `/`; configure `SUPABASE_URL`, `SUPABASE_KEY`, and optionally `FRAUD_THRESHOLD` in the Vercel project environment. Because `model.sav` is gitignored by default, either commit it for deploy, attach it via another artifact flow, or adjust ignore rules so Vercel bundles the file with the Python function.
+4.  **Frontend:** Static UI in `public/` is routed at `/`; configure `SUPABASE_URL`, `SUPABASE_KEY`, and optionally `FRAUD_THRESHOLD` in the Vercel project environment.
+5.  **`model.sav` on Vercel:** Run the notebook through the serialization cell so `model.sav` exists at the **repo root**, **commit and push** it, then redeploy. `vercel.json` uses `includeFiles` so that file is packaged with `api/predict.py` (the serverless bundle does not see your laptop’s filesystem).

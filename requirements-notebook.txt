@@ -1,0 +1,8 @@
+# Notebook + local ML (install into project .venv)
+-r requirements.txt
+ipykernel>=6.29
+jupyter
+matplotlib
+seaborn
+imbalanced-learn
+scipy
