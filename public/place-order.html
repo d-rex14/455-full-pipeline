@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Place a new order — Fraud Guard (IS455)." />
+    <title>Fraud Guard — Place order</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1 class="brand-title">Fraud Guard</h1>
+          <p class="brand-sub">IS455 · CRISP-DM deployment</p>
+        </div>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/" class="site-nav__link">Score order</a>
+        <a href="/place-order" class="site-nav__link site-nav__link--active">Place order</a>
+        <a href="/admin" class="site-nav__link">Admin</a>
+      </nav>
+      <p class="header-tagline">Create a customer and order in Supabase for demo scoring and admin review.</p>
+    </header>
+
+    <main class="layout layout--single">
+      <section class="panel panel--wide" aria-labelledby="place-heading">
+        <h2 id="place-heading" class="panel-title">Place an order</h2>
+        <p class="panel-lead">
+          Line totals and taxes are computed on the server. At least one product line is required.
+        </p>
+
+        <div id="form-error" class="result-error" hidden></div>
+        <div id="form-success" class="result-success" hidden></div>
+
+        <form id="place-form" class="stack-form">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Customer</legend>
+            <div class="field-row">
+              <label class="field field--inline">
+                <span class="field-label">Mode</span>
+                <select id="customer-mode" name="customer_mode">
+                  <option value="new">New customer</option>
+                  <option value="existing">Existing customer</option>
+                </select>
+              </label>
+            </div>
+            <div id="block-existing" class="field-grid" hidden>
+              <label class="field">
+                <span class="field-label">Customer</span>
+                <select id="customer-id" name="customer_id"></select>
+              </label>
+            </div>
+            <div id="block-new" class="field-grid field-grid--2">
+              <label class="field">
+                <span class="field-label">Full name</span>
+                <input type="text" id="full-name" name="full_name" autocomplete="name" />
+              </label>
+              <label class="field">
+                <span class="field-label">Email</span>
+                <input type="email" id="email" name="email" autocomplete="email" />
+              </label>
+              <label class="field">
+                <span class="field-label">Gender</span>
+                <select id="gender" name="gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">Birthdate</span>
+                <input type="date" id="birthdate" name="birthdate" value="1990-01-15" />
+              </label>
+              <label class="field">
+                <span class="field-label">City</span>
+                <input type="text" id="city" name="city" placeholder="Provo" />
+              </label>
+              <label class="field">
+                <span class="field-label">State</span>
+                <input type="text" id="state" name="state" placeholder="UT" maxlength="2" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Order</legend>
+            <div class="field-grid field-grid--2">
+              <label class="field">
+                <span class="field-label">Payment</span>
+                <select id="payment-method" name="payment_method">
+                  <option value="card">card</option>
+                  <option value="paypal">paypal</option>
+                  <option value="apple_pay">apple_pay</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">Device</span>
+                <select id="device-type" name="device_type">
+                  <option value="desktop">desktop</option>
+                  <option value="mobile">mobile</option>
+                  <option value="tablet">tablet</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">IP country</span>
+                <input type="text" id="ip-country" name="ip_country" value="US" maxlength="2" />
+              </label>
+              <label class="field">
+                <span class="field-label">Shipping state</span>
+                <input type="text" id="shipping-state" name="shipping_state" value="TX" maxlength="2" />
+              </label>
+              <label class="field">
+                <span class="field-label">Billing ZIP</span>
+                <input type="text" id="billing-zip" name="billing_zip" value="84604" />
+              </label>
+              <label class="field">
+                <span class="field-label">Shipping ZIP</span>
+                <input type="text" id="shipping-zip" name="shipping_zip" value="84604" />
+              </label>
+              <label class="field">
+                <span class="field-label">Shipping fee</span>
+                <input type="number" id="shipping-fee" name="shipping_fee" value="9.99" min="0" step="0.01" />
+              </label>
+              <label class="field">
+                <span class="field-label">Tax rate</span>
+                <input type="number" id="tax-rate" name="tax_rate" value="0.06" min="0" max="0.2" step="0.01" />
+              </label>
+              <label class="field field--check">
+                <input type="checkbox" id="promo-used" name="promo_used" />
+                <span class="field-label field-label--inline">Promo used</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Line items</legend>
+            <div id="lines-wrap" class="lines-wrap"></div>
+            <button type="button" class="btn btn-secondary" id="add-line">Add line</button>
+          </fieldset>
+
+          <button type="submit" class="btn btn-primary" id="submit-order">
+            <span class="btn-label">Submit order</span>
+            <span class="btn-spinner" hidden aria-hidden="true"></span>
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>New orders default to <code>is_fraud = 0</code> until an admin labels them.</p>
+    </footer>
+
+    <script src="/place-order.js" type="module"></script>
+  </body>
+</html>

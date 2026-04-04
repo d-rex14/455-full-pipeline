@@ -7,11 +7,27 @@
       "use": "@vercel/python",
       "config": { "includeFiles": "model.sav" }
     },
-    { "src": "api/cron.py", "use": "@vercel/python" }
+    {
+      "src": "api/orders_score.py",
+      "use": "@vercel/python",
+      "config": { "includeFiles": "model.sav" }
+    },
+    { "src": "api/cron.py", "use": "@vercel/python" },
+    { "src": "api/products.py", "use": "@vercel/python" },
+    { "src": "api/customers.py", "use": "@vercel/python" },
+    { "src": "api/orders.py", "use": "@vercel/python" },
+    { "src": "api/orders_label.py", "use": "@vercel/python" }
   ],
   "routes": [
     { "src": "/api/predict", "dest": "/api/predict.py" },
     { "src": "/api/cron", "dest": "/api/cron.py" },
+    { "src": "/api/products", "dest": "/api/products.py" },
+    { "src": "/api/customers", "dest": "/api/customers.py" },
+    { "src": "/api/orders/score", "dest": "/api/orders_score.py" },
+    { "src": "/api/orders/label", "dest": "/api/orders_label.py" },
+    { "src": "/api/orders", "dest": "/api/orders.py" },
+    { "src": "/place-order", "dest": "/public/place-order.html" },
+    { "src": "/admin", "dest": "/public/admin.html" },
     { "src": "^/$", "dest": "/public/index.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ],
