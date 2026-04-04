@@ -4,6 +4,7 @@ const blockExisting = document.getElementById("block-existing");
 const blockNew = document.getElementById("block-new");
 const customerSelect = document.getElementById("customer-id");
 const existingProfile = document.getElementById("existing-profile");
+const newCustomerFields = document.querySelector("#block-new[data-new-customer-fields]");
 const linesWrap = document.getElementById("lines-wrap");
 const addLineBtn = document.getElementById("add-line");
 const errEl = document.getElementById("form-error");
@@ -35,33 +36,53 @@ function showSuccess(html) {
   errEl.hidden = true;
 }
 
+function setNewCustomerFieldsDisabled(disabled) {
+  if (!newCustomerFields) return;
+  newCustomerFields.querySelectorAll("input, select, textarea").forEach((el) => {
+    el.disabled = disabled;
+  });
+}
+
 function syncCustomerBlocks() {
-  const mode = modeEl.value;
-  blockExisting.hidden = mode !== "existing";
-  blockNew.hidden = mode !== "new";
-  if (mode === "existing") {
+  const isExisting = modeEl.value === "existing";
+  blockExisting.classList.toggle("customer-panel-hidden", !isExisting);
+  blockNew.classList.toggle("customer-panel-hidden", isExisting);
+  blockExisting.setAttribute("aria-hidden", isExisting ? "false" : "true");
+  blockNew.setAttribute("aria-hidden", isExisting ? "true" : "false");
+  setNewCustomerFieldsDisabled(isExisting);
+  if (isExisting) {
     fillExistingProfile();
   } else {
     existingProfile.hidden = true;
+    existingProfile.classList.add("existing-profile--empty");
   }
 }
 
 function fillExistingProfile() {
+  if (modeEl.value !== "existing") {
+    return;
+  }
   const id = parseInt(customerSelect.value, 10);
   const c = Number.isFinite(id) ? customerById.get(id) : null;
   if (!c) {
     existingProfile.hidden = true;
+    existingProfile.classList.add("existing-profile--empty");
     return;
   }
   const seg = [c.customer_segment, c.loyalty_tier].filter(Boolean).join(" · ") || "—";
-  document.getElementById("ex-full-name").value = c.full_name || "";
-  document.getElementById("ex-email").value = c.email || "";
-  document.getElementById("ex-gender").value = c.gender || "";
-  document.getElementById("ex-birthdate").value = (c.birthdate || "").toString().slice(0, 10);
-  document.getElementById("ex-city").value = c.city || "";
-  document.getElementById("ex-state").value = c.state || "";
-  document.getElementById("ex-zip").value = c.zip_code || "";
-  document.getElementById("ex-segment").value = seg;
+  const setDd = (idSuffix, text) => {
+    const el = document.getElementById(idSuffix);
+    if (el) el.textContent = text || "—";
+  };
+  setDd("ex-val-name", c.full_name);
+  setDd("ex-val-email", c.email);
+  setDd("ex-val-gender", c.gender);
+  setDd("ex-val-birthdate", (c.birthdate || "").toString().slice(0, 10));
+  setDd("ex-val-city", c.city);
+  setDd("ex-val-state", c.state);
+  setDd("ex-val-zip", c.zip_code);
+  setDd("ex-val-segment", seg);
+  existingProfile.classList.remove("existing-profile--empty");
   existingProfile.hidden = false;
 }
 
@@ -122,7 +143,7 @@ async function loadCatalog() {
     return;
   }
   addLineRow();
-  fillExistingProfile();
+  syncCustomerBlocks();
 }
 
 modeEl.addEventListener("change", syncCustomerBlocks);
@@ -195,6 +216,7 @@ form.addEventListener("submit", async (e) => {
     );
     form.reset();
     document.getElementById("birthdate").value = "1990-01-15";
+    setNewCustomerFieldsDisabled(false);
     syncCustomerBlocks();
     await loadCatalog();
   } catch (err) {
@@ -204,6 +226,4 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-loadCatalog()
-  .then(() => syncCustomerBlocks())
-  .catch((err) => showError(err instanceof Error ? err.message : String(err)));
+loadCatalog().catch((err) => showError(err instanceof Error ? err.message : String(err)));

@@ -53,53 +53,37 @@
                 </select>
               </label>
             </div>
-            <div id="block-existing" class="stack-existing" hidden>
+            <div id="block-existing" class="stack-existing customer-panel-hidden" aria-hidden="true">
               <label class="field">
                 <span class="field-label">Select customer (by email)</span>
                 <select id="customer-id" name="customer_id" aria-describedby="existing-profile-hint"></select>
               </label>
               <p id="existing-profile-hint" class="hint hint--tight">
-                Choosing a customer loads their saved profile below. Only <code>customer_id</code> is sent when you submit.
+                We load their profile from the database. Only <code>customer_id</code> is sent when you submit.
               </p>
-              <div id="existing-profile" class="existing-profile" hidden>
-                <p class="existing-profile-title">Profile on file</p>
-                <div class="field-grid field-grid--2">
-                  <label class="field">
-                    <span class="field-label">Full name</span>
-                    <input type="text" id="ex-full-name" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">Email</span>
-                    <input type="text" id="ex-email" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">Gender</span>
-                    <input type="text" id="ex-gender" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">Birthdate</span>
-                    <input type="text" id="ex-birthdate" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">City</span>
-                    <input type="text" id="ex-city" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">State</span>
-                    <input type="text" id="ex-state" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">ZIP</span>
-                    <input type="text" id="ex-zip" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                  <label class="field">
-                    <span class="field-label">Segment / loyalty</span>
-                    <input type="text" id="ex-segment" class="input-readonly" readonly tabindex="-1" />
-                  </label>
-                </div>
+              <div id="existing-profile" class="existing-profile existing-profile--empty" hidden>
+                <p class="existing-profile-title">Selected customer</p>
+                <dl class="profile-summary">
+                  <dt>Name</dt>
+                  <dd id="ex-val-name">—</dd>
+                  <dt>Email</dt>
+                  <dd id="ex-val-email">—</dd>
+                  <dt>Gender</dt>
+                  <dd id="ex-val-gender">—</dd>
+                  <dt>Birthdate</dt>
+                  <dd id="ex-val-birthdate">—</dd>
+                  <dt>City</dt>
+                  <dd id="ex-val-city">—</dd>
+                  <dt>State</dt>
+                  <dd id="ex-val-state">—</dd>
+                  <dt>ZIP</dt>
+                  <dd id="ex-val-zip">—</dd>
+                  <dt>Segment / loyalty</dt>
+                  <dd id="ex-val-segment">—</dd>
+                </dl>
               </div>
             </div>
-            <div id="block-new" class="field-grid field-grid--2">
+            <div id="block-new" class="field-grid field-grid--2" data-new-customer-fields>
               <label class="field">
                 <span class="field-label">Full name</span>
                 <input type="text" id="full-name" name="full_name" autocomplete="name" />
