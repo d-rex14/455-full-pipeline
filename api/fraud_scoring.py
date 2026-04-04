@@ -1,5 +1,8 @@
 """
-Shared fraud pipeline: feature engineering + model scoring (used by predict + batch score).
+Shared fraud pipeline: feature engineering + model scoring.
+
+Deployed scoring is inlined in predict.py and orders_score.py so Vercel bundles one file + model.sav.
+Edit those files (or this module) and keep logic in sync for local tooling / notebooks.
 """
 
 import os

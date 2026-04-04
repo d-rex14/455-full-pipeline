@@ -36,7 +36,10 @@ class handler(BaseHTTPRequestHandler):
             resp = (
                 _get_supabase()
                 .table("customers")
-                .select("customer_id, full_name, email, gender, birthdate")
+                .select(
+                    "customer_id, full_name, email, gender, birthdate, city, state, zip_code, "
+                    "customer_segment, loyalty_tier"
+                )
                 .eq("is_active", 1)
                 .order("customer_id")
                 .limit(2000)

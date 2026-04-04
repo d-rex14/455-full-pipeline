@@ -101,6 +101,11 @@ def _iso_now():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _omit_none(d):
+    """Drop None values so PostgREST / older clients do not choke on explicit nulls."""
+    return {k: v for k, v in d.items() if v is not None}
+
+
 def _create_order(sb, body):
     lines = body.get("lines") or []
     if not isinstance(lines, list) or len(lines) < 1:
@@ -137,10 +142,18 @@ def _create_order(sb, body):
             "loyalty_tier": body.get("loyalty_tier") or "none",
             "is_active": int(body.get("is_active", 1)),
         }
-        ins = sb.table("customers").insert(cust_row).select("customer_id").execute()
-        if not ins.data:
+        sb.table("customers").insert(_omit_none(cust_row)).execute()
+        got = (
+            sb.table("customers")
+            .select("customer_id")
+            .eq("email", email)
+            .order("customer_id", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not got.data:
             raise ValueError("failed to create customer")
-        customer_id = ins.data[0]["customer_id"]
+        customer_id = got.data[0]["customer_id"]
 
     product_rows = {}
     for line in lines:
@@ -195,10 +208,18 @@ def _create_order(sb, body):
         "is_fraud": int(body.get("is_fraud", 0)),
     }
 
-    oins = sb.table("orders").insert(order_row).select("order_id").execute()
-    if not oins.data:
+    sb.table("orders").insert(_omit_none(order_row)).execute()
+    oget = (
+        sb.table("orders")
+        .select("order_id")
+        .eq("customer_id", customer_id)
+        .order("order_id", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not oget.data:
         raise ValueError("failed to create order")
-    order_id = oins.data[0]["order_id"]
+    order_id = oget.data[0]["order_id"]
 
     item_payload = [
         {

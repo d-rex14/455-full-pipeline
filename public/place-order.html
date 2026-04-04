@@ -53,11 +53,51 @@
                 </select>
               </label>
             </div>
-            <div id="block-existing" class="field-grid" hidden>
+            <div id="block-existing" class="stack-existing" hidden>
               <label class="field">
-                <span class="field-label">Customer</span>
-                <select id="customer-id" name="customer_id"></select>
+                <span class="field-label">Select customer (by email)</span>
+                <select id="customer-id" name="customer_id" aria-describedby="existing-profile-hint"></select>
               </label>
+              <p id="existing-profile-hint" class="hint hint--tight">
+                Choosing a customer loads their saved profile below. Only <code>customer_id</code> is sent when you submit.
+              </p>
+              <div id="existing-profile" class="existing-profile" hidden>
+                <p class="existing-profile-title">Profile on file</p>
+                <div class="field-grid field-grid--2">
+                  <label class="field">
+                    <span class="field-label">Full name</span>
+                    <input type="text" id="ex-full-name" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Email</span>
+                    <input type="text" id="ex-email" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Gender</span>
+                    <input type="text" id="ex-gender" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Birthdate</span>
+                    <input type="text" id="ex-birthdate" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">City</span>
+                    <input type="text" id="ex-city" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">State</span>
+                    <input type="text" id="ex-state" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">ZIP</span>
+                    <input type="text" id="ex-zip" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Segment / loyalty</span>
+                    <input type="text" id="ex-segment" class="input-readonly" readonly tabindex="-1" />
+                  </label>
+                </div>
+              </div>
             </div>
             <div id="block-new" class="field-grid field-grid--2">
               <label class="field">
@@ -66,7 +106,14 @@
               </label>
               <label class="field">
                 <span class="field-label">Email</span>
-                <input type="email" id="email" name="email" autocomplete="email" />
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  inputmode="email"
+                  autocomplete="email"
+                  placeholder="you@example.com"
+                />
               </label>
               <label class="field">
                 <span class="field-label">Gender</span>
@@ -87,6 +134,10 @@
               <label class="field">
                 <span class="field-label">State</span>
                 <input type="text" id="state" name="state" placeholder="UT" maxlength="2" />
+              </label>
+              <label class="field">
+                <span class="field-label">ZIP</span>
+                <input type="text" id="zip-code" name="zip_code" placeholder="84604" />
               </label>
             </div>
           </fieldset>

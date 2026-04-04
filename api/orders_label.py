@@ -58,11 +58,12 @@ class handler(BaseHTTPRequestHandler):
 
             oid = int(order_id)
             sb = _get_supabase()
+            sb.table("orders").update({"is_fraud": int(is_fraud), "admin_reviewed": 1}).eq("order_id", oid).execute()
             upd = (
                 sb.table("orders")
-                .update({"is_fraud": int(is_fraud), "admin_reviewed": 1})
-                .eq("order_id", oid)
                 .select("order_id, is_fraud, admin_reviewed")
+                .eq("order_id", oid)
+                .limit(1)
                 .execute()
             )
             if not upd.data:

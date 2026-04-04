@@ -597,6 +597,39 @@ input[type="search"]:focus {
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
+.stack-existing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hint--tight {
+  margin: 0 0 0.5rem;
+}
+
+.existing-profile {
+  margin-top: 0.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-deep);
+}
+
+.existing-profile-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-readonly {
+  cursor: default;
+  opacity: 0.92;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
 .admin-meta {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;

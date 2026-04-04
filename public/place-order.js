@@ -3,6 +3,7 @@ const modeEl = document.getElementById("customer-mode");
 const blockExisting = document.getElementById("block-existing");
 const blockNew = document.getElementById("block-new");
 const customerSelect = document.getElementById("customer-id");
+const existingProfile = document.getElementById("existing-profile");
 const linesWrap = document.getElementById("lines-wrap");
 const addLineBtn = document.getElementById("add-line");
 const errEl = document.getElementById("form-error");
@@ -13,6 +14,8 @@ const btnSpinner = submitBtn.querySelector(".btn-spinner");
 
 let products = [];
 let customers = [];
+/** @type {Map<number, object>} */
+let customerById = new Map();
 
 function setLoading(loading) {
   submitBtn.disabled = loading;
@@ -36,6 +39,30 @@ function syncCustomerBlocks() {
   const mode = modeEl.value;
   blockExisting.hidden = mode !== "existing";
   blockNew.hidden = mode !== "new";
+  if (mode === "existing") {
+    fillExistingProfile();
+  } else {
+    existingProfile.hidden = true;
+  }
+}
+
+function fillExistingProfile() {
+  const id = parseInt(customerSelect.value, 10);
+  const c = Number.isFinite(id) ? customerById.get(id) : null;
+  if (!c) {
+    existingProfile.hidden = true;
+    return;
+  }
+  const seg = [c.customer_segment, c.loyalty_tier].filter(Boolean).join(" · ") || "—";
+  document.getElementById("ex-full-name").value = c.full_name || "";
+  document.getElementById("ex-email").value = c.email || "";
+  document.getElementById("ex-gender").value = c.gender || "";
+  document.getElementById("ex-birthdate").value = (c.birthdate || "").toString().slice(0, 10);
+  document.getElementById("ex-city").value = c.city || "";
+  document.getElementById("ex-state").value = c.state || "";
+  document.getElementById("ex-zip").value = c.zip_code || "";
+  document.getElementById("ex-segment").value = seg;
+  existingProfile.hidden = false;
 }
 
 function productOptionsHtml(selectedId) {
@@ -85,8 +112,9 @@ async function loadCatalog() {
   if (cr.error) throw new Error(cr.error);
   products = pr.products || [];
   customers = cr.customers || [];
+  customerById = new Map(customers.map((c) => [c.customer_id, c]));
   customerSelect.innerHTML = customers
-    .map((c) => `<option value="${c.customer_id}">${escapeHtml(c.email)} — ${escapeHtml(c.full_name)}</option>`)
+    .map((c) => `<option value="${c.customer_id}">${escapeHtml(c.email)}</option>`)
     .join("");
   linesWrap.innerHTML = "";
   if (products.length === 0) {
@@ -94,9 +122,11 @@ async function loadCatalog() {
     return;
   }
   addLineRow();
+  fillExistingProfile();
 }
 
 modeEl.addEventListener("change", syncCustomerBlocks);
+customerSelect.addEventListener("change", fillExistingProfile);
 addLineBtn.addEventListener("click", () => addLineRow());
 
 form.addEventListener("submit", async (e) => {
@@ -140,6 +170,8 @@ form.addEventListener("submit", async (e) => {
     payload.birthdate = bd || "1990-01-01";
     payload.city = document.getElementById("city").value.trim() || null;
     payload.state = document.getElementById("state").value.trim() || null;
+    const z = document.getElementById("zip-code").value.trim();
+    payload.zip_code = z || null;
     if (!payload.full_name || !payload.email) {
       showError("Full name and email are required for a new customer.");
       return;
