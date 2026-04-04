@@ -19,9 +19,6 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Model artifacts
-model.sav
-
 # Environment
 .env
 .env.local
@@ -29,3 +26,6 @@ model.sav
 # IDE
 .vscode/
 .idea/
+
+# Supabase CLI local state
+supabase/.temp/

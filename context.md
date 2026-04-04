@@ -29,10 +29,14 @@ We will document and execute the following phases within the `fraud_detection.ip
 ---
 
 ## File Structure
-* `data/` - Directory containing the raw fraud dataset.
-* `CRISP-DM_Textbook.md` - The methodological guide for this project.
-* `fraud_detection.ipynb` - The primary notebook for development.
-* `model.sav` - The final trained model ready for deployment.
+* `shop.db` — SQLite source data (local); optional after data lives in Supabase.
+* `Textbook_Chapters/` — Course reference (CRISP-DM and methods).
+* `fraud_detection.ipynb` — Primary notebook (CRISP-DM phases).
+* `model.sav` — Trained pipeline for the Vercel API (generate via notebook; must be present at deploy).
+* `api/predict.py` — Serverless scorer (Supabase + pickle model).
+* `public/` — Static frontend for Vercel (`index.html` and assets).
+* `supabase/migrations/` — Postgres schema applied in Supabase.
+* `migrate_to_supabase.py` — One-time SQLite → Supabase data load.
 
 ---
 
@@ -40,3 +44,4 @@ We will document and execute the following phases within the `fraud_detection.ip
 1.  **Serialization:** The final model is saved as `model.sav`.
 2.  **Backend Integration:** Connect to **Supabase** for data persistence and user management.
 3.  **Production:** Deploy a serverless function or API on **Vercel** to serve real-time fraud predictions.
+4.  **Frontend:** Static UI in `public/` is routed at `/`; configure `SUPABASE_URL`, `SUPABASE_KEY`, and optionally `FRAUD_THRESHOLD` in the Vercel project environment. Because `model.sav` is gitignored by default, either commit it for deploy, attach it via another artifact flow, or adjust ignore rules so Vercel bundles the file with the Python function.

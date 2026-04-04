@@ -2,8 +2,8 @@
 One-time migration: push all shop.db data into Supabase Postgres.
 
 Usage:
-    1. Create a .env file with SUPABASE_URL and SUPABASE_KEY
-    2. Run the SQL in supabase_migration.sql via the Supabase SQL Editor first
+    1. Create a .env file with SUPABASE_URL and SUPABASE_KEY (see .env.example)
+    2. Apply schema: supabase/migrations/001_init.sql (Supabase SQL Editor or CLI)
     3. python3 migrate_to_supabase.py
 
 Tables are inserted in foreign-key order:

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Real-time fraud risk scoring for orders (IS455 / CRISP-DM deployment)." />
+    <title>Fraud Guard — Order scoring</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1 class="brand-title">Fraud Guard</h1>
+          <p class="brand-sub">IS455 · CRISP-DM deployment</p>
+        </div>
+      </div>
+      <p class="header-tagline">Score live orders against your trained pipeline via Vercel + Supabase.</p>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel--form" aria-labelledby="score-heading">
+        <h2 id="score-heading" class="panel-title">Score an order</h2>
+        <p class="panel-lead">
+          Enter a Supabase <code>order_id</code>. The API loads the order graph, engineers features, and returns fraud
+          probability using <code>model.sav</code>.
+        </p>
+        <form id="predict-form" class="predict-form" novalidate>
+          <label class="field">
+            <span class="field-label">Order ID</span>
+            <input
+              id="order-id"
+              name="order_id"
+              type="number"
+              inputmode="numeric"
+              min="1"
+              step="1"
+              placeholder="e.g. 42"
+              required
+              autocomplete="off"
+            />
+          </label>
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            <span class="btn-label">Run prediction</span>
+            <span class="btn-spinner" hidden aria-hidden="true"></span>
+          </button>
+        </form>
+        <p class="hint" role="note">
+          API: <code>POST /api/predict</code> with JSON body <code>{"order_id": &lt;int&gt;}</code>.
+        </p>
+      </section>
+
+      <section class="panel panel--result" aria-live="polite" aria-atomic="true">
+        <h2 class="panel-title">Result</h2>
+        <div id="result-empty" class="result-placeholder">
+          <p>Submit an order ID to see fraud probability, threshold, and label.</p>
+        </div>
+        <div id="result-error" class="result-error" hidden></div>
+        <div id="result-card" class="result-card" hidden>
+          <div class="result-status" id="result-status"></div>
+          <dl class="result-metrics">
+            <div class="metric">
+              <dt>Order</dt>
+              <dd id="metric-order">—</dd>
+            </div>
+            <div class="metric">
+              <dt>Probability (fraud)</dt>
+              <dd id="metric-prob">—</dd>
+            </div>
+            <div class="metric">
+              <dt>Threshold</dt>
+              <dd id="metric-threshold">—</dd>
+            </div>
+          </dl>
+          <div class="meter-wrap">
+            <div class="meter-label">Risk intensity</div>
+            <div class="meter" role="presentation">
+              <div class="meter-fill" id="meter-fill"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Recall and F1 drive model selection; this UI surfaces operational scores only.</p>
+    </footer>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
