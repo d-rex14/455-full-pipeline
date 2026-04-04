@@ -5,12 +5,12 @@
     {
       "src": "api/predict.py",
       "use": "@vercel/python",
-      "config": { "includeFiles": "model.sav" }
+      "config": { "includeFiles": "model.sav,api/fraud_scoring.py" }
     },
     {
       "src": "api/orders_score.py",
       "use": "@vercel/python",
-      "config": { "includeFiles": "model.sav" }
+      "config": { "includeFiles": "model.sav,api/fraud_scoring.py" }
     },
     { "src": "api/cron.py", "use": "@vercel/python" },
     { "src": "api/products.py", "use": "@vercel/python" },

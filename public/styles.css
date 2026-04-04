@@ -555,6 +555,75 @@ select:focus {
   min-width: 8rem;
 }
 
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.field--grow {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.admin-search-label {
+  margin-bottom: 0;
+}
+
+.admin-page-size {
+  flex: 0 0 auto;
+  width: 7rem;
+  margin-bottom: 0;
+}
+
+input[type="search"] {
+  font-family: var(--sans);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-deep);
+  color: var(--text);
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input[type="search"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.admin-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.admin-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-page {
+  margin-bottom: 0;
+  min-width: 6.5rem;
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 .admin-status {
   min-height: 1.5rem;
   font-size: 0.9rem;

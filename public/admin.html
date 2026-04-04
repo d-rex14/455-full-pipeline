@@ -35,7 +35,8 @@
       <section class="panel panel--wide" aria-labelledby="admin-heading">
         <h2 id="admin-heading" class="panel-title">Orders</h2>
         <p class="panel-lead">
-          Check rows to score a subset, or leave all unchecked and use “Score all”. Labels set <code>admin_reviewed = 1</code>.
+          Use search and pagination to browse. “Score selected” uses checkboxes on the <strong>current page</strong> only. “Score all”
+          runs the model on up to 400 recent orders server-side. Labels set <code>admin_reviewed = 1</code>.
         </p>
 
         <div class="admin-toolbar">
@@ -43,6 +44,30 @@
           <button type="button" class="btn btn-primary" id="btn-score">Score selected</button>
           <button type="button" class="btn btn-primary" id="btn-score-all">Score all (cap 400)</button>
         </div>
+
+        <div class="admin-filters">
+          <label class="field field--grow admin-search-label">
+            <span class="field-label">Search orders</span>
+            <input
+              type="search"
+              id="order-search"
+              placeholder="ID, date, customer, email, total, payment, state…"
+              autocomplete="off"
+              aria-controls="orders-table"
+            />
+          </label>
+          <label class="field admin-page-size">
+            <span class="field-label">Per page</span>
+            <select id="page-size" aria-label="Rows per page">
+              <option value="10">10</option>
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+        <p class="admin-meta" id="admin-meta" aria-live="polite"></p>
+
         <div id="admin-status" class="admin-status" role="status"></div>
         <div id="admin-error" class="result-error" hidden></div>
 
@@ -69,6 +94,12 @@
             </tbody>
           </table>
         </div>
+
+        <nav class="admin-pagination" id="pagination" aria-label="Order list pages" hidden>
+          <button type="button" class="btn btn-secondary btn-page" id="btn-prev" disabled>Previous</button>
+          <span class="pagination-info mono" id="pagination-info"></span>
+          <button type="button" class="btn btn-secondary btn-page" id="btn-next" disabled>Next</button>
+        </nav>
       </section>
     </main>
 
