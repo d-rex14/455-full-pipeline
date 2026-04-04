@@ -46,3 +46,4 @@ We will document and execute the following phases within the `fraud_detection.ip
 3.  **Production:** Deploy a serverless function or API on **Vercel** to serve real-time fraud predictions.
 4.  **Frontend:** Static UI in `public/` is routed at `/`; configure `SUPABASE_URL`, `SUPABASE_KEY`, and optionally `FRAUD_THRESHOLD` in the Vercel project environment.
 5.  **`model.sav` on Vercel:** Run the notebook through the serialization cell so `model.sav` exists at the **repo root**, **commit and push** it, then redeploy. `vercel.json` uses `includeFiles` so that file is packaged with `api/predict.py` (the serverless bundle does not see your laptop’s filesystem).
+6.  **Cron:** `vercel.json` defines a daily job at **00:00 UTC** hitting `GET /api/cron`. Set **`CRON_SECRET`** in Vercel; the handler checks `Authorization: Bearer <CRON_SECRET>`. Implement nightly logic inside `api/cron.py` as needed.

@@ -6,11 +6,19 @@
       "src": "api/predict.py",
       "use": "@vercel/python",
       "config": { "includeFiles": "model.sav" }
-    }
+    },
+    { "src": "api/cron.py", "use": "@vercel/python" }
   ],
   "routes": [
     { "src": "/api/predict", "dest": "/api/predict.py" },
+    { "src": "/api/cron", "dest": "/api/cron.py" },
     { "src": "^/$", "dest": "/public/index.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 0 * * *"
+    }
   ]
 }
