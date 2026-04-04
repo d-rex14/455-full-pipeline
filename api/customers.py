@@ -9,14 +9,14 @@ from supabase import create_client
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 
-_sb = None
+_supabase_client = None
 
 
-def _sb():
-    global _sb
-    if _sb is None:
-        _sb = create_client(SUPABASE_URL, SUPABASE_KEY)
-    return _sb
+def _get_supabase():
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    return _supabase_client
 
 
 def _cors(handler):
@@ -34,7 +34,7 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             resp = (
-                _sb()
+                _get_supabase()
                 .table("customers")
                 .select("customer_id, full_name, email, gender, birthdate")
                 .eq("is_active", 1)

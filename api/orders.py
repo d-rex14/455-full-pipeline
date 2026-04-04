@@ -13,14 +13,14 @@ from supabase import create_client
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 
-_sb = None
+_supabase_client = None
 
 
-def _sb():
-    global _sb
-    if _sb is None:
-        _sb = create_client(SUPABASE_URL, SUPABASE_KEY)
-    return _sb
+def _get_supabase():
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    return _supabase_client
 
 
 def _cors(handler, methods="GET, POST, OPTIONS"):
@@ -43,7 +43,7 @@ class handler(BaseHTTPRequestHandler):
         if _path_clean(self) != "/api/orders":
             return self._json(404, {"error": "not found"})
         try:
-            sb = _sb()
+            sb = _get_supabase()
             resp = (
                 sb.table("orders")
                 .select(
@@ -79,7 +79,7 @@ class handler(BaseHTTPRequestHandler):
             return self._json(400, {"error": "invalid JSON"})
 
         try:
-            result = _create_order(_sb(), body)
+            result = _create_order(_get_supabase(), body)
             return self._json(result["status"], result["body"])
         except ValueError as ve:
             return self._json(400, {"error": str(ve)})

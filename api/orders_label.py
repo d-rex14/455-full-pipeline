@@ -9,14 +9,14 @@ from supabase import create_client
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 
-_sb = None
+_supabase_client = None
 
 
-def _sb():
-    global _sb
-    if _sb is None:
-        _sb = create_client(SUPABASE_URL, SUPABASE_KEY)
-    return _sb
+def _get_supabase():
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    return _supabase_client
 
 
 def _cors(handler):
@@ -57,7 +57,7 @@ class handler(BaseHTTPRequestHandler):
                 return self._send_json(400, {"error": "is_fraud must be 0 or 1"})
 
             oid = int(order_id)
-            sb = _sb()
+            sb = _get_supabase()
             upd = (
                 sb.table("orders")
                 .update({"is_fraud": int(is_fraud), "admin_reviewed": 1})
