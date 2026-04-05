@@ -6,7 +6,7 @@ Edit those files (or this module) and keep logic in sync for local tooling / not
 """
 
 import os
-import pickle
+import joblib
 
 import numpy as np
 import pandas as pd
@@ -39,8 +39,7 @@ def get_model():
                 "model.sav not found. Train with fraud_detection.ipynb (serialization cell), "
                 "place model.sav at the project root, commit it, and redeploy so Vercel can bundle it."
             )
-        with open(path, "rb") as f:
-            _model = pickle.load(f)
+        _model = joblib.load(path)
     return _model
 
 

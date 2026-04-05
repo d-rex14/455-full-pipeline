@@ -6,7 +6,7 @@ ML logic is inlined so Vercel bundles a single file + model.sav (no sibling impo
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-import pickle
+import joblib
 
 import numpy as np
 import pandas as pd
@@ -40,8 +40,7 @@ def _get_model():
                 "model.sav not found. Train with fraud_detection.ipynb (serialization cell), "
                 "place model.sav at the project root, commit it, and redeploy so Vercel can bundle it."
             )
-        with open(path, "rb") as f:
-            _model = pickle.load(f)
+        _model = joblib.load(path)
     return _model
 
 
