@@ -20,16 +20,21 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 FRAUD_THRESHOLD = float(os.environ.get("FRAUD_THRESHOLD", "0.428"))
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "model.sav")
-
-# Categories kept during training (everything else was binned to "Other")
-KNOWN_IP_COUNTRIES = {"US"}
-KNOWN_SHIPPING_STATES = {"CO", "OH", "MI", "TX", "NC", "AZ"}
+MODEL_PATH    = os.path.join(os.path.dirname(__file__), "..", "model.sav")
+METADATA_PATH = os.path.join(os.path.dirname(__file__), "..", "model_metadata.json")
 
 # ── Lazy-loaded singletons ────────────────────────────────────────────────────
 
-_model = None
-_supabase = None
+_model     = None
+_threshold = None
+_supabase  = None
+
+
+def _get_supabase():
+    global _supabase
+    if _supabase is None:
+        _supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    return _supabase
 
 
 def _get_model():
@@ -39,11 +44,18 @@ def _get_model():
     return _model
 
 
-def _get_supabase():
-    global _supabase
-    if _supabase is None:
-        _supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    return _supabase
+def _get_threshold():
+    """Read the optimised threshold from model_metadata.json if present,
+    otherwise fall back to the FRAUD_THRESHOLD env-var default."""
+    global _threshold
+    if _threshold is not None:
+        return _threshold
+    try:
+        with open(METADATA_PATH) as f:
+            _threshold = float(json.load(f).get("final_threshold", FRAUD_THRESHOLD))
+    except Exception:
+        _threshold = FRAUD_THRESHOLD
+    return _threshold
 
 
 # ── Feature engineering (mirrors Phase 3 of the notebook) ─────────────────────
@@ -160,15 +172,16 @@ class handler(BaseHTTPRequestHandler):
 
             # Engineer features and predict
             X = engineer_features(order, customer, shipment, items_agg)
-            model = _get_model()
+            model     = _get_model()
+            threshold = _get_threshold()
             probability = float(model.predict_proba(X)[:, 1][0])
-            is_fraud = int(probability > FRAUD_THRESHOLD)
+            is_fraud    = int(probability > threshold)
 
             return self._json(200, {
                 "order_id":    order_id,
                 "is_fraud":    is_fraud,
                 "probability": round(probability, 4),
-                "threshold":   FRAUD_THRESHOLD,
+                "threshold":   threshold,
             })
 
         except Exception as exc:

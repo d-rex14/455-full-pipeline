@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+#textbook
+Chapter*.md
+
 # Python
 __pycache__/
 *.py[cod]
@@ -19,8 +22,6 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Model artifacts
-model.sav
 
 # Environment
 .env

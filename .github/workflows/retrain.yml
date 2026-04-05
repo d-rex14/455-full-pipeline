@@ -1,0 +1,49 @@
+name: Retrain Fraud Detection Model
+
+on:
+  schedule:
+    # Runs every night at 3:00 AM UTC
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    # Allow manual trigger from the GitHub Actions UI
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Use a token that can push back to the repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install scikit-learn pandas numpy supabase joblib
+
+      - name: Retrain model
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python retrain.py
+
+      - name: Check for model changes
+        id: diff
+        run: |
+          git diff --quiet model.sav model_metadata.json metrics.json \
+            && echo "changed=false" >> "$GITHUB_OUTPUT" \
+            || echo "changed=true"  >> "$GITHUB_OUTPUT"
+
+      - name: Commit updated model artifacts
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add model.sav model_metadata.json metrics.json
+          git commit -m "chore: retrain model $(date -u '+%Y-%m-%d')"
+          git push
