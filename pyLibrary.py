@@ -1571,7 +1571,7 @@ def select_features_rfe(X_train_arr, y_train, feature_names,
   if estimator is None:
     estimator = LogisticRegression(max_iter=1000)
   rfecv = RFECV(estimator=estimator, step=1,
-                cv=StratifiedKFold(cv), scoring=scoring, n_jobs=-1)
+                cv=StratifiedKFold(cv), scoring=scoring, n_jobs=1)
   rfecv.fit(X_train_arr, y_train)
   selected = list(np.array(feature_names)[rfecv.support_])
   print(f"Optimal features: {rfecv.n_features_} — {selected}")
@@ -1593,7 +1593,7 @@ def permutation_importance_report(model, X_test_arr, y_test, feature_names,
                                   n_repeats=n_repeats,
                                   scoring=scoring,
                                   random_state=random_state,
-                                  n_jobs=-1)
+                                  n_jobs=1)
   pfi = pd.DataFrame({
     'Feature': feature_names,
     'Importance Mean': result.importances_mean,

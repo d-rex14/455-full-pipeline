@@ -1,7 +1,7 @@
 {
   "model_name": "fraud_detection_pipeline",
   "model_version": "1.0.0",
-  "trained_at_utc": "2026-04-05T00:14:11.727765",
+  "trained_at_utc": "2026-04-05T01:54:24.383001",
   "source_table": "orders (shop.db)",
   "num_training_rows": 3750,
   "num_test_rows": 1250,
@@ -42,5 +42,5 @@
     "ip_country",
     "shipping_state"
   ],
-  "final_threshold": 0.108
+  "final_threshold": 0.1
 }
