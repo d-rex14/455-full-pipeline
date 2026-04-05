@@ -7,7 +7,7 @@ scores with the trained fraud-detection pipeline, and returns a prediction.
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-import pickle
+import joblib
 import datetime
 
 import numpy as np
@@ -35,8 +35,7 @@ _supabase = None
 def _get_model():
     global _model
     if _model is None:
-        with open(MODEL_PATH, "rb") as f:
-            _model = pickle.load(f)
+        _model = joblib.load(MODEL_PATH)
     return _model
 
 
