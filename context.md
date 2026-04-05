@@ -1,8 +1,8 @@
 # Project Context: Fraud Detection ML Pipeline
 
-Read this file before doing anything else. 
+Read this file before doing anything else.
 
-You may update this file as you go along. 
+You may update this file as you go along.
 
 ## Overview
 This project focuses on building a machine learning solution to identify fraudulent transactions. We are strictly adhering to the **CRISP-DM** (Cross-Industry Standard Process for Data Mining) framework as outlined in the provided textbook documentation.
@@ -10,78 +10,90 @@ This project focuses on building a machine learning solution to identify fraudul
 ## Tech Stack
 * **Modeling:** Python (Jupyter Notebook)
 * **Framework:** CRISP-DM
-* **Model Format:** Serialized Pickle file (`model.sav`)
-* **Database/Backend:** Supabase
-* **Hosting/Deployment:** Vercel
+* **Model Format:** Serialized joblib file (`model.sav`)
+* **Database/Backend:** Supabase (already populated — migration complete)
+* **Hosting/Deployment:** Vercel (serverless, deploys from this repo via GitHub integration)
 
 ---
 
-## Project Phases (CRISP-DM)
-We will document and execute the following phases within the `fraud_detection.ipynb` file:
+## Project Phases (CRISP-DM) — Status
 
-1.  **Business Understanding:** Define fraud detection goals and success metrics.
-2.  **Data Understanding:** Explore the provided dataset and identify quality issues.
-3.  **Data Preparation:** Clean, transform, and handle class imbalance (Fraud vs. Non-Fraud).
-4.  **Modeling:** Select and train algorithms to predict the target variable.
-5.  **Evaluation:** Validate the model against business objectives (Focusing on Recall and F1-Score).
-6.  **Deployment:** Exporting `model.sav` for integration with the Supabase/Vercel stack.
-
----
-
-## File Structure
-* `data/` - Directory containing the raw fraud dataset.
-* `CRISP-DM_Textbook.md` - The methodological guide for this project.
-* `fraud_detection.ipynb` - The primary notebook for development.
-* `model.sav` - The final trained model ready for deployment.
+| Phase | Status | Notes |
+|---|---|---|
+| 1. Business Understanding | Complete | Fraud detection; primary metrics are Recall and F1-score |
+| 2. Data Understanding | Complete | Explored `shop.db`; fraud rate ~6.36% |
+| 3. Data Preparation | Complete | Feature engineering, outlier capping, stratified split |
+| 4. Modeling | Complete | LR, DT, RF, GB trained; tuned RF and GB as finalists |
+| 5. Evaluation | Complete | Final model selected by F1 @ Recall ≥ 0.75; threshold optimised |
+| 6. Deployment | Complete | `model.sav` live on Vercel via `api/predict.py` |
 
 ---
 
+## Current File Structure
 
-# CronJob Retrain nightly workflow
-
-This document outlines the automated CI/CD pipeline responsible for retraining the machine learning model nightly, updating the repository, and triggering a fresh deployment.
-
----
-
-## 🛠 Workflow Architecture
-The system uses **GitHub Actions** as the orchestrator to bridge the gap between the data layer (**Supabase**) and the hosting layer (**Vercel**).
-
-### 1. GitHub Action Configuration
-The workflow is defined in `.github/workflows/retrain.yml`. It is scheduled to run every night at 3:00 AM UTC and can also be triggered manually via `workflow_dispatch`.
-
-**Key Pipeline Steps:**
-* **Environment Setup:** Provisions an Ubuntu runner with Python 3.11.
-* **Dependency Management:** Installs required ML libraries (`scikit-learn`, `pandas`, `imbalanced-learn`, etc.).
-* **Execution:** Runs `retrain.py` using repository secrets for Supabase authentication.
-* **Automated Commit:** If the model weights or metrics change, the GitHub Actions bot commits the updated `model.sav`, `model_metadata.json`, and `metrics.json` back to the main branch.
-
----
-
-### 2. The Retraining Script (`retrain.py`)
-To ensure consistency, the retraining script must perform the following:
-1. **Data Ingestion:** Query Supabase for the latest labeled dataset.
-2. **Feature Parity:** Implement identical feature engineering steps as found in the research notebooks (e.g., account age, zip code validation).
-3. **Training:** Fit the Random Forest pipeline.
-4. **Serialization:** Export the model via `joblib` and update the performance metrics files.
+```
+ML-Pipeline/
+├── fraud_detection.ipynb       # Main CRISP-DM notebook (Phases 1–6)
+├── model.sav                   # Trained model artifact (joblib) — committed to git
+├── model_metadata.json         # Final threshold, feature list, training stats
+├── metrics.json                # recall, F1, ROC-AUC, accuracy on held-out test set
+├── shop.db                     # Original SQLite training data (5,000 rows)
+├── pyLibrary.py                # Shared ML utility functions used by the notebook
+├── retrain.py                  # Standalone retraining script (run by GitHub Actions)
+├── requirements.txt            # Python dependencies for Vercel
+├── vercel.json                 # Vercel build + route config
+├── .env / .env.example         # Supabase credentials (local use only)
+├── CLAUDE.md                   # Instructions for Claude Code
+├── context.md                  # This file
+├── Textbook_Chapters/          # Reference chapters (Ch1–28)
+├── api/
+│   ├── predict.py              # POST /api/predict — live fraud scoring endpoint
+│   └── retrain.py              # POST /api/retrain — on-demand HTTP retrain trigger
+└── .github/
+    └── workflows/
+        └── retrain.yml         # Nightly cron retrain (3 AM UTC) + manual trigger
+```
 
 ---
 
-### 3. Deployment Loop
-Deployment is handled automatically via the **Vercel-GitHub Integration**:
-* Once the GitHub Action pushes a new commit to the repository, Vercel detects the change.
-* A new deployment is triggered.
-* The API endpoint (`api/predict.py`) loads the newly committed `model.sav` upon initialization.
+## Automated Retraining Pipeline
+
+### How it works
+```
+Supabase (new labeled data)
+    → GitHub Actions runs retrain.py (nightly 3 AM UTC or manual trigger)
+    → Writes model.sav + model_metadata.json + metrics.json
+    → Commits back to repo (only if model changed)
+    → Vercel detects commit → auto-redeploys
+    → api/predict.py loads new model.sav on next cold start
+```
+
+### Key files
+| File | Role |
+|---|---|
+| `retrain.py` | Fetches all labeled orders from Supabase, engineers features (mirrors notebook Phase 3), trains RF with `class_weight='balanced'`, finds optimal threshold, saves artifacts |
+| `.github/workflows/retrain.yml` | Cron schedule + manual `workflow_dispatch`; commits artifacts back to repo only when model changes (git diff guard) |
+| `api/retrain.py` | On-demand HTTP trigger (`POST /api/retrain`, secured by `RETRAIN_SECRET` header); stores model in Supabase Storage for immediate use without a redeploy |
+| `api/predict.py` | Loads `model.sav` and reads `final_threshold` from `model_metadata.json` — stays in sync with every retrain automatically |
+
+### Required secrets (GitHub repo Settings → Secrets)
+* `SUPABASE_URL`
+* `SUPABASE_KEY`
+
+### Required env vars (Vercel project Settings → Environment Variables)
+* `SUPABASE_URL`
+* `SUPABASE_KEY`
+* `RETRAIN_SECRET` — any secret string to lock down `POST /api/retrain`
+
+### Important notes
+* `model.sav` must **not** be in `.gitignore` — the GitHub Action commits it back to the repo
+* The workflow skips the commit step if `git diff` shows no changes (prevents empty commits)
+* `api/predict.py` threshold is always read from `model_metadata.json`; the `FRAUD_THRESHOLD` env var is only a fallback if the file is missing
 
 ---
 
-### Critical Maintenance Notes
-* **Secrets:** Ensure `SUPABASE_URL` and `SUPABASE_KEY` are maintained in the GitHub Repo Secrets.
-* **Gitignore:** The file `model.sav` must **not** be ignored by Git; otherwise, the automated push will fail.
-* **Commit Logic:** The workflow uses a `git diff` guard to prevent "empty" commits if the retraining results in an identical model file.
-
-
-# Final Deployment Workflow
-1.  **Serialization:** The final model is saved as `model.sav`.
-2.  **Backend Integration:** Connect to **Supabase** for data persistence and user management.
-3.  **Production:** Deploy a serverless function or API on **Vercel** to serve real-time fraud predictions.
-
+## Deployment Workflow
+1. **Serialization:** Final model saved as `model.sav` via `joblib.dump`.
+2. **Backend:** Supabase stores transaction data (orders, customers, shipments, order_items).
+3. **Production:** Vercel serves `api/predict.py` for real-time fraud predictions.
+4. **Retraining:** GitHub Actions retrains nightly from Supabase data and redeploys automatically.
