@@ -46,9 +46,9 @@ def _get_model():
 
 
 def _engineer_features(order, customer, shipment, items_agg):
-    order_dt = pd.to_datetime(order["order_datetime"], errors="coerce")
-    cust_created = pd.to_datetime(customer.get("created_at"), errors="coerce")
-    birthdate = pd.to_datetime(customer.get("birthdate"), errors="coerce")
+    order_dt = pd.to_datetime(order["order_datetime"], errors="coerce", utc=True)
+    cust_created = pd.to_datetime(customer.get("created_at"), errors="coerce", utc=True)
+    birthdate = pd.to_datetime(customer.get("birthdate"), errors="coerce", utc=True)
 
     account_age_days = (order_dt - cust_created).days if pd.notna(order_dt) and pd.notna(cust_created) else 0
     customer_age_years = (order_dt - birthdate).days // 365 if pd.notna(order_dt) and pd.notna(birthdate) else 30
